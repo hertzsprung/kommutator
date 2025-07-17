@@ -1,2 +1,2 @@
-# kommutator
-DynamoDB power tools
+# Kommutator: DynamoDB power tools for Kotlin
+
