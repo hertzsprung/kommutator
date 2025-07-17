@@ -4,4 +4,4 @@ slf4j = "2.0.17"
 
 [libraries]
 aws-sdk-dynamodb = { group = "aws.sdk.kotlin", name = "dynamodb", version = "aws-sdk" }
-slf4j-simple = { group = "org.slf4j", name = "slf4j-simple", version = "slf4j" }
+2.0.17-simple = { group = "org.2.0.17", name = "2.0.17-simple", version = "2.0.17" }
