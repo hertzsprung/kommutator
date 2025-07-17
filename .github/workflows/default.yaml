@@ -1,0 +1,23 @@
+on:
+  workflow_dispatch:
+    inputs:
+      force_unconditional_execution:
+        type: boolean
+        required: true
+        default: false
+        description: 'Force unconditional execution of jobs without Gradle caching'
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '30 7 * * 0'
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.2.2
+    - name: setup-gradle
+      uses: gradle/actions/setup-gradle@v4.4.1
+      with:
+        cache-disabled: ${{ inputs.force_unconditional_execution == 'true' || github.event_name == 'schedule' }}
