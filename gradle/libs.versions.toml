@@ -1,7 +1,9 @@
 [versions]
-aws-sdk = "1.4.123"
+aws-sdk = "1.4.124"
+kotest = "5.9.1"
 slf4j = "2.0.17"
 
 [libraries]
-aws-sdk-dynamodb = { group = "aws.sdk.kotlin", name = "dynamodb", version = "aws-sdk" }
-slf4j-simple = { group = "org.slf4j", name = "slf4j-simple", version = "slf4j" }
+aws-sdk-dynamodb = { group = "aws.sdk.kotlin", name = "dynamodb", version.ref = "aws-sdk" }
+kotest-assertions-core = { group = "io.kotest", name = "kotest-assertions-core", version.ref = "kotest" }
+slf4j-simple = { group = "org.slf4j", name = "slf4j-simple", version.ref = "slf4j" }
