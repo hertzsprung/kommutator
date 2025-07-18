@@ -11,8 +11,10 @@ on:
       - main
   schedule:
     - cron: '30 7 * * 0'
+permissions:
+  contents: write
 jobs:
-  test:
+  check:
     runs-on: ubuntu-24.04
     steps:
     - name: checkout
@@ -25,6 +27,7 @@ jobs:
     - name: setup-gradle
       uses: gradle/actions/setup-gradle@v4.4.1
       with:
+        dependency-graph: generate-and-submit
         cache-disabled: ${{ inputs.force_unconditional_execution == 'true' || github.event_name == 'schedule' }}
     - name: gradle
       run: ./gradlew
