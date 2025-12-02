@@ -1,6 +1,6 @@
 [versions]
 aws-sdk = "1.4.124"
-kotest = "5.9.1"
+kotest = "6.0.7"
 slf4j = "2.0.17"
 
 [libraries]
