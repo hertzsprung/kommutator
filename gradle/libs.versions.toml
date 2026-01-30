@@ -1,5 +1,5 @@
 [versions]
-aws-sdk = "1.4.124"
+aws-sdk = "1.6.3"
 kotest = "6.1.1"
 slf4j = "2.0.17"
 
