@@ -8,12 +8,31 @@ interface Expression {
     val attributeValues: Map<String, AttributeValue>
 }
 
-class Eq(private val attribute: Attribute, private val value: AttributeValue): Expression {
-    override val condition: String get() = "${attribute.expressionName} = ${attribute.expressionValue}"
+abstract class RelationalOperator(private val attribute: Attribute, private val value: AttributeValue): Expression {
     override val attributeNames: Map<String, String> get() = mapOf(attribute.expressionName to attribute.name)
     override val attributeValues: Map<String, AttributeValue> get() = mapOf(attribute.expressionValue to value)
 
     infix fun and(right: Expression): Expression = And(this, right)
+}
+
+class Eq(private val attribute: Attribute, value: AttributeValue): RelationalOperator(attribute, value) {
+    override val condition: String get() = "${attribute.expressionName} = ${attribute.expressionValue}"
+}
+
+class Lt(private val attribute: Attribute, value: AttributeValue): RelationalOperator(attribute, value) {
+    override val condition: String get() = "${attribute.expressionName} < ${attribute.expressionValue}"
+}
+
+class Le(private val attribute: Attribute, value: AttributeValue): RelationalOperator(attribute, value) {
+    override val condition: String get() = "${attribute.expressionName} <= ${attribute.expressionValue}"
+}
+
+class Gt(private val attribute: Attribute, value: AttributeValue): RelationalOperator(attribute, value) {
+    override val condition: String get() = "${attribute.expressionName} > ${attribute.expressionValue}"
+}
+
+class Ge(private val attribute: Attribute, value: AttributeValue): RelationalOperator(attribute, value) {
+    override val condition: String get() = "${attribute.expressionName} >= ${attribute.expressionValue}"
 }
 
 internal class And(private val left: Expression, private val right: Expression) : Expression {
