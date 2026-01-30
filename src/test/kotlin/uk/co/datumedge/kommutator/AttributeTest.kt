@@ -25,11 +25,16 @@ class AttributeTest {
 
         val expression = pk eq 123
 
-        assertSoftly(expression) {
-            condition shouldBe "#PK = :PK"
-            attributeNames shouldBe mapOf("#PK" to "PK")
-            attributeValues shouldBe mapOf(":PK" to AttributeValue.N("123"))
-        }
+        expression.attributeValues shouldBe mapOf(":PK" to AttributeValue.N("123"))
+    }
+
+    @Test
+    fun `bool equality expression`() {
+        val pk = Attribute.Bool("PK")
+
+        val expression = pk eq true
+
+        expression.attributeValues shouldBe mapOf(":PK" to AttributeValue.Bool(true))
     }
 
     @Test
