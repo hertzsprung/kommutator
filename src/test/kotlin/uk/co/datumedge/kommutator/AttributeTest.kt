@@ -1,10 +1,11 @@
 package uk.co.datumedge.kommutator
 
 import aws.sdk.kotlin.services.dynamodb.model.AttributeValue
+import aws.sdk.kotlin.services.dynamodb.model.AttributeValue.Bool
+import aws.sdk.kotlin.services.dynamodb.model.AttributeValue.N
+import aws.sdk.kotlin.services.dynamodb.model.AttributeValue.S
 import io.kotest.assertions.assertSoftly
-import io.kotest.matchers.collections.shouldMatchEach
 import io.kotest.matchers.maps.haveValues
-import io.kotest.matchers.maps.shouldMatchExactly
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldStartWith
@@ -29,7 +30,7 @@ class AttributeTest {
 
             assertSoftly(expression) {
                 attributeNames shouldBe mapOf("#attr" to "attr")
-                attributeValues should haveValues(AttributeValue.S("hello"))
+                attributeValues should haveValues(S("hello"))
                 condition shouldBe "#attr = ${attributeValues.keys.single()}"
             }
         }
@@ -38,14 +39,14 @@ class AttributeTest {
         fun number() {
             val expression = number eq 123
 
-            expression.attributeValues should haveValues(AttributeValue.N("123"))
+            expression.attributeValues should haveValues(N("123"))
         }
 
         @Test
         fun boolean() {
             val expression = bool eq true
 
-            expression.attributeValues should haveValues(AttributeValue.Bool(true))
+            expression.attributeValues should haveValues(Bool(true))
         }
     }
 
@@ -56,7 +57,7 @@ class AttributeTest {
             val expression = number lt 123
 
             assertSoftly(expression) {
-                attributeValues should haveValues(AttributeValue.N("123"))
+                attributeValues should haveValues(N("123"))
                 condition shouldBe "#attr < ${attributeValues.keys.single()}"
             }
         }
@@ -65,7 +66,7 @@ class AttributeTest {
         fun string() {
             val expression = string lt "hello"
 
-            expression.attributeValues shouldBe haveValues(AttributeValue.S("hello"))
+            expression.attributeValues shouldBe haveValues(S("hello"))
         }
     }
 
@@ -76,7 +77,7 @@ class AttributeTest {
             val expression = number le 123
 
             assertSoftly(expression) {
-                attributeValues should haveValues(AttributeValue.N("123"))
+                attributeValues should haveValues(N("123"))
                 condition shouldBe "#attr <= ${attributeValues.keys.single()}"
             }
         }
@@ -85,7 +86,7 @@ class AttributeTest {
         fun string() {
             val expression = string le "hello"
 
-            expression.attributeValues should haveValues(AttributeValue.S("hello"))
+            expression.attributeValues should haveValues(S("hello"))
         }
     }
 
@@ -96,7 +97,7 @@ class AttributeTest {
             val expression = number gt 123
 
             assertSoftly(expression) {
-                attributeValues should haveValues(AttributeValue.N("123"))
+                attributeValues should haveValues(N("123"))
                 condition shouldBe "#attr > ${attributeValues.keys.single()}"
             }
         }
@@ -105,7 +106,7 @@ class AttributeTest {
         fun string() {
             val expression = string gt "hello"
 
-            expression.attributeValues shouldBe haveValues(AttributeValue.S("hello"))
+            expression.attributeValues shouldBe haveValues(S("hello"))
         }
     }
 
@@ -116,7 +117,7 @@ class AttributeTest {
             val expression = number ge 123
 
             assertSoftly(expression) {
-                attributeValues should haveValues(AttributeValue.N("123"))
+                attributeValues should haveValues(N("123"))
                 condition shouldBe "#attr >= ${attributeValues.keys.single()}"
             }
         }
@@ -125,7 +126,7 @@ class AttributeTest {
         fun string() {
             val expression = string ge "hello"
 
-            expression.attributeValues should haveValues(AttributeValue.S("hello"))
+            expression.attributeValues should haveValues(S("hello"))
         }
     }
 
@@ -134,7 +135,7 @@ class AttributeTest {
         val expression = string.beginsWith("hel")
 
         assertSoftly(expression) {
-            attributeValues should haveValues(AttributeValue.S("hel"))
+            attributeValues should haveValues(S("hel"))
             condition shouldBe "begins_with(#attr, ${attributeValues.keys.single()})"
         }
     }
@@ -142,7 +143,7 @@ class AttributeTest {
     @Nested
     inner class And {
         @Test
-        fun `string equality and begins with`() {
+        fun `string equality and string begins with`() {
             val pk = Attribute.S("PK")
             val sk = Attribute.S("SK")
 
@@ -151,31 +152,31 @@ class AttributeTest {
             assertSoftly(expression) {
                 attributeNames shouldBe mapOf("#PK" to "PK", "#SK" to "SK")
 
-                val pkExpressionAttributeValue = attributeValues.keys.single { it.startsWith(":PK") }
-                val skExpressionAttributeValue = attributeValues.keys.single { it.startsWith(":SK") }
+                val pkExpressionAttributeValue = attributeValues.singleKeyStartingWith(":PK")
+                val skExpressionAttributeValue = attributeValues.singleKeyStartingWith(":SK")
 
                 attributeValues shouldBe mapOf(
-                    pkExpressionAttributeValue to AttributeValue.S("hello"),
-                    skExpressionAttributeValue to AttributeValue.S("world")
+                    pkExpressionAttributeValue to S("hello"),
+                    skExpressionAttributeValue to S("world")
                 )
                 condition shouldBe "#PK = $pkExpressionAttributeValue AND begins_with(#SK, $skExpressionAttributeValue)"
             }
         }
 
         @Test
-        fun `two number inequalities`() {
+        fun `two number inequalities on different attributes`() {
             val pk = Attribute.N("PK")
             val sk = Attribute.N("SK")
 
             val expression = (pk le 123) and (sk lt 456)
 
             assertSoftly(expression) {
-                val pkExpressionAttributeValue = attributeValues.keys.single { it.startsWith(":PK") }
-                val skExpressionAttributeValue = attributeValues.keys.single { it.startsWith(":SK") }
+                val pkExpressionAttributeValue = attributeValues.singleKeyStartingWith(":PK")
+                val skExpressionAttributeValue = attributeValues.singleKeyStartingWith(":SK")
 
                 attributeValues shouldBe mapOf(
-                    pkExpressionAttributeValue to AttributeValue.N("123"),
-                    skExpressionAttributeValue to AttributeValue.N("456")
+                    pkExpressionAttributeValue to N("123"),
+                    skExpressionAttributeValue to N("456")
                 )
 
                 condition shouldBe "#PK <= $pkExpressionAttributeValue AND #SK < $skExpressionAttributeValue"
@@ -189,16 +190,22 @@ class AttributeTest {
             val expression = (pk le 123) and (pk lt 456)
 
             assertSoftly(expression) {
-                val leExpressionAttributeValue = attributeValues.filterValues { it == AttributeValue.N("123") }.keys.single()
-                val ltExpressionAttributeValue = attributeValues.filterValues { it == AttributeValue.N("456") }.keys.single()
+                val leExpressionAttributeValue = attributeValues.singleKeyHavingValue(N("123"))
+                val ltExpressionAttributeValue = attributeValues.singleKeyHavingValue(N("456"))
 
                 attributeValues shouldBe mapOf(
-                    leExpressionAttributeValue to AttributeValue.N("123"),
-                    ltExpressionAttributeValue to AttributeValue.N("456")
+                    leExpressionAttributeValue to N("123"),
+                    ltExpressionAttributeValue to N("456")
                 )
                 condition shouldBe "#PK <= $leExpressionAttributeValue AND #PK < $ltExpressionAttributeValue"
             }
         }
+
+        private fun Map<String, AttributeValue>.singleKeyStartingWith(expected: String) =
+            keys.single { it.startsWith(expected) }
+
+        private fun Map<String, AttributeValue>.singleKeyHavingValue(expected: AttributeValue) =
+            filterValues { it == expected }.keys.single()
     }
 }
 
