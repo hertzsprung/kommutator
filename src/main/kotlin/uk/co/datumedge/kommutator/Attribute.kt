@@ -1,6 +1,6 @@
 package uk.co.datumedge.kommutator
 
-interface Attribute {
+sealed interface Attribute {
     val name: String
     val expressionName: String get() = "#$name"
     val expressionValue: String get() = ":$name"
