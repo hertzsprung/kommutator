@@ -1,5 +1,7 @@
 package uk.co.datumedge.kommutator
 
+import aws.sdk.kotlin.services.dynamodb.model.ComparisonOperator
+
 sealed interface Attribute {
     val name: String
     val expressionName: String get() = "#$name"
@@ -15,6 +17,7 @@ sealed interface Attribute {
         infix fun le(value: Number) = Le(this, value.n())
         infix fun gt(value: Number) = Gt(this, value.n())
         infix fun ge(value: Number) = Ge(this, value.n())
+        fun between(lower: Number, upper: Number) = Between(this, lower.n(), upper.n())
     }
 
     class S(override val name: String) : Attribute {

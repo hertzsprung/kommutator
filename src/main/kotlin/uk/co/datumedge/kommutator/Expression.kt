@@ -15,8 +15,6 @@ abstract class RelationalOperator(private val attribute: Attribute, private val 
     override val attributeValues: Map<String, AttributeValue> get() = mapOf(expressionValue to value)
 
     infix fun and(right: Expression): Expression = And(this, right)
-
-    private fun randomSuffix(): String = UUID.randomUUID().toString().split("-", limit = 2)[0]
 }
 
 class Eq(private val attribute: Attribute, value: AttributeValue): RelationalOperator(attribute, value) {
@@ -43,8 +41,22 @@ internal class BeginsWith(private val attribute: Attribute, substr: AttributeVal
     override val condition: String get() = "begins_with(${attribute.expressionName}, $expressionValue)"
 }
 
+class Between(private val attribute: Attribute, private val  lower: AttributeValue, private val upper: AttributeValue): Expression {
+    private val lowerExpressionValue = "${attribute.expressionValue}_${randomSuffix()}"
+    private val upperExpressionValue = "${attribute.expressionValue}_${randomSuffix()}"
+
+    override val condition: String get() = "${attribute.expressionName} BETWEEN $lowerExpressionValue AND $upperExpressionValue"
+    override val attributeNames: Map<String, String> get() = mapOf(attribute.expressionName to attribute.name)
+    override val attributeValues: Map<String, AttributeValue> get() = mapOf(
+        lowerExpressionValue to lower,
+        upperExpressionValue to upper
+    )
+}
+
 internal class And(private val left: Expression, private val right: Expression) : Expression {
     override val condition: String get() = "${left.condition} AND ${right.condition}"
     override val attributeNames: Map<String, String> get() = left.attributeNames + right.attributeNames
     override val attributeValues: Map<String, AttributeValue> get() = left.attributeValues + right.attributeValues
 }
+
+private fun randomSuffix(): String = UUID.randomUUID().toString().split("-", limit = 2)[0]

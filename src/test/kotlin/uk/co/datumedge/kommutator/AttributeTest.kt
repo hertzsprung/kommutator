@@ -140,6 +140,18 @@ class AttributeTest {
         }
     }
 
+    @Test
+    fun `number between`() {
+        val expression = number.between(123, 456)
+
+        assertSoftly(expression) {
+            val lowerExpressionAttributeValue = attributeValues.singleKeyHavingValue(N("123"))
+            val upperExpressionAttributeValue = attributeValues.singleKeyHavingValue(N("456"))
+
+            condition shouldBe "#attr BETWEEN $lowerExpressionAttributeValue AND $upperExpressionAttributeValue"
+        }
+    }
+
     @Nested
     inner class And {
         @Test
@@ -200,15 +212,12 @@ class AttributeTest {
                 condition shouldBe "#PK <= $leExpressionAttributeValue AND #PK < $ltExpressionAttributeValue"
             }
         }
-
-        private fun Map<String, AttributeValue>.singleKeyStartingWith(expected: String) =
-            keys.single { it.startsWith(expected) }
-
-        private fun Map<String, AttributeValue>.singleKeyHavingValue(expected: AttributeValue) =
-            filterValues { it == expected }.keys.single()
     }
 }
 
+private fun Map<String, AttributeValue>.singleKeyStartingWith(expected: String) =
+    keys.single { it.startsWith(expected) }
 
-
+private fun Map<String, AttributeValue>.singleKeyHavingValue(expected: AttributeValue) =
+    filterValues { it == expected }.keys.single()
 
