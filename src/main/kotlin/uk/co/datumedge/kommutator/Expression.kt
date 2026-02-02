@@ -35,6 +35,10 @@ class Ge(private val attribute: Attribute, value: AttributeValue): RelationalOpe
     override val condition: String get() = "${attribute.expressionName} >= ${attribute.expressionValue}"
 }
 
+internal class BeginsWith(private val attribute: Attribute, substr: AttributeValue): RelationalOperator(attribute, substr) {
+    override val condition: String get() = "begins_with(${attribute.expressionName}, ${attribute.expressionValue})"
+}
+
 internal class And(private val left: Expression, private val right: Expression) : Expression {
     override val condition: String get() = "${left.condition} AND ${right.condition}"
     override val attributeNames: Map<String, String> get() = left.attributeNames + right.attributeNames

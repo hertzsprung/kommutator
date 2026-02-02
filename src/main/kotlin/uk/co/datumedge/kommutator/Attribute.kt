@@ -23,5 +23,6 @@ interface Attribute {
         infix fun le(value: String) = Le(this, value.s())
         infix fun gt(value: String) = Gt(this, value.s())
         infix fun ge(value: String) = Ge(this, value.s())
+        fun beginsWith(value: String): Expression = BeginsWith(this, value.s())
     }
 }

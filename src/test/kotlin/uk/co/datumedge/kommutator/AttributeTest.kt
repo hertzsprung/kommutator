@@ -141,17 +141,30 @@ class AttributeTest {
         }
     }
 
+    @Test
+    fun `string begins with`() {
+        val pk = Attribute.S("PK")
+
+        val expression = pk.beginsWith("hel")
+
+        assertSoftly(expression) {
+            condition shouldBe "begins_with(#PK, :PK)"
+            attributeNames shouldBe mapOf("#PK" to "PK")
+            attributeValues shouldBe mapOf(":PK" to AttributeValue.S("hel"))
+        }
+    }
+
     @Nested
     inner class And {
         @Test
-        fun `two string equalities`() {
+        fun `string equality and begins with`() {
             val pk = Attribute.S("PK")
             val sk = Attribute.S("SK")
 
-            val expression = (pk eq "hello") and (sk eq "world")
+            val expression = (pk eq "hello") and sk.beginsWith("world")
 
             assertSoftly(expression) {
-                condition shouldBe "#PK = :PK AND #SK = :SK"
+                condition shouldBe "#PK = :PK AND begins_with(#SK, :SK)"
                 attributeNames shouldBe mapOf("#PK" to "PK", "#SK" to "SK")
                 attributeValues shouldBe mapOf(":PK" to AttributeValue.S("hello"), ":SK" to AttributeValue.S("world"))
             }
@@ -168,6 +181,19 @@ class AttributeTest {
                 condition shouldBe "#PK <= :PK AND #SK < :SK"
                 attributeNames shouldBe mapOf("#PK" to "PK", "#SK" to "SK")
                 attributeValues shouldBe mapOf(":PK" to AttributeValue.N("123"), ":SK" to AttributeValue.N("456"))
+            }
+        }
+
+        @Test
+        fun `two number inequalities on same attribute`() {
+            val pk = Attribute.N("PK")
+
+            val expression = (pk le 123) and (pk lt 456)
+
+            assertSoftly(expression) {
+                condition shouldBe "#PK <= :PK AND #PK < :PK_1"
+                attributeNames shouldBe mapOf("#PK" to "PK")
+                attributeValues shouldBe mapOf(":PK" to AttributeValue.N("123"), ":PK_1" to AttributeValue.N("456"))
             }
         }
     }
